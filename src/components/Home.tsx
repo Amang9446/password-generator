@@ -31,21 +31,30 @@ function generatePassword(length: number, options: PasswordOptions): string {
     symbols: "!@#$%^&*()_+~`|}{[]:;?><,./-=",
   };
 
-  let chars = "";
-  if (options.uppercase) chars += charset.uppercase;
-  if (options.lowercase) chars += charset.lowercase;
-  if (options.numbers) chars += charset.numbers;
-  if (options.symbols) chars += charset.symbols;
+  const getRandomChar = (str: string) =>
+    str[Math.floor(Math.random() * str.length)];
 
-  let password = "";
-  for (let i = 0; i < length; i++) {
-    password += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return password;
+  const selectedCharsets = Object.entries(charset)
+    .filter(([key]) => options[key as keyof PasswordOptions])
+    .map(([, value]) => value);
+
+  const allChars = selectedCharsets.join("");
+  const requiredChars = selectedCharsets.map(getRandomChar);
+
+  const remainingLength = length - requiredChars.length;
+  const randomChars = Array.from({ length: remainingLength }, () =>
+    getRandomChar(allChars)
+  );
+
+  return shuffleArray([...requiredChars, ...randomChars]).join("");
+}
+
+function shuffleArray<T>(array: T[]): T[] {
+  return array.sort(() => Math.random() - 0.5);
 }
 
 export default function Home() {
-  const [length, setLength] = useState(8);
+  const [length, setLength] = useState(16);
   const [uppercase, setUppercase] = useState(true);
   const [lowercase, setLowercase] = useState(true);
   const [numbers, setNumbers] = useState(true);
@@ -57,6 +66,10 @@ export default function Home() {
       toast.error("Please select at least one character type.");
       return;
     }
+    if (length < 4) {
+      toast.error("Password length must be at least 4.");
+      return;
+    }
     const newPassword = generatePassword(length, {
       uppercase,
       lowercase,
@@ -64,6 +77,16 @@ export default function Home() {
       symbols,
     });
     setPassword(newPassword);
+  };
+
+  const handleLengthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newLength = parseInt(e.target.value);
+    if (newLength < 4) {
+      toast.error("Password length must be at least 4.");
+      setLength(4);
+    } else {
+      setLength(newLength);
+    }
   };
 
   return (
@@ -81,10 +104,10 @@ export default function Home() {
             <Input
               id="length"
               type="number"
-              min="8"
+              min="4"
               max="64"
               value={length}
-              onChange={(e) => setLength(parseInt(e.target.value))}
+              onChange={handleLengthChange}
               className="h-8"
             />
           </div>
@@ -159,7 +182,7 @@ export default function Home() {
         <CardFooter className="flex justify-between items-center">
           <p className="text-sm text-muted-foreground">Created by Aman</p>
           <Link
-            href="#"
+            href="https://github.com/Amang9446/password-generator"
             className="text-sm text-primary hover:underline"
             prefetch={false}
           >

@@ -185,6 +185,7 @@ export default function Home() {
             href="https://github.com/Amang9446/password-generator"
             className="text-sm text-primary hover:underline"
             prefetch={false}
+            target="_blank"
           >
             Learn more
           </Link>

@@ -54,7 +54,7 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 export default function Home() {
-  const [length, setLength] = useState(16);
+  const [length, setLength] = useState(8);
   const [uppercase, setUppercase] = useState(true);
   const [lowercase, setLowercase] = useState(true);
   const [numbers, setNumbers] = useState(true);
